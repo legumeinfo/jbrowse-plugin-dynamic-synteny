@@ -1,19 +1,22 @@
 import Plugin from '@jbrowse/core/Plugin'
 import PluginManager from '@jbrowse/core/PluginManager'
-import { isAbstractMenuManager } from '@jbrowse/core/util'
 import AdapterType from '@jbrowse/core/pluggableElementTypes/AdapterType'
 import { version } from '../package.json'
-//import { WidgetType } from '@jbrowse/core/pluggableElementTypes'
 import { DynamicSyntenyAdapter, configSchema as adapterConfigSchema } from './DynamicSyntenyAdapter'
-import DynamicSyntenyWidgetF from './DynamicSyntenyWidget'
+import {
+  DotplotDynamicSyntenyImportForm,
+  LinearSyntenyDynamicSyntenyImportForm,
+} from './DynamicSyntenyImportForm'
+
+import type { DotplotImportFormSyntenyOption } from '@jbrowse/plugin-dotplot-view'
+import type { LinearSyntenyImportFormSyntenyOption } from '@jbrowse/plugin-linear-comparative-view'
 
 export default class DynamicSyntenyPlugin extends Plugin {
   name = 'DynamicSyntenyPlugin'
   version = version
 
   install(pluginManager: PluginManager) {
-    DynamicSyntenyWidgetF(pluginManager)
-
+    // Register adapter
     pluginManager.addAdapterType(() => {
       return new AdapterType({
         name: 'DynamicSyntenyAdapter',
@@ -28,52 +31,41 @@ export default class DynamicSyntenyPlugin extends Plugin {
         },
       })
     })
-  }
 
-  configure(pluginManager: PluginManager) {
-    if (isAbstractMenuManager(pluginManager.rootModel)) {
-      // Create a top-level menu for your plugin
-      pluginManager.rootModel.appendToMenu('NCGR', {
-        label: 'Dynamic Synteny',
-        onClick: (session: any) => {
-          // Check if widget already exists
-          const existingWidget = session.widgets.get('DynamicSyntenyWidget')
-          if (existingWidget) {
-            session.showWidget(existingWidget)
-          } else {
-            const widget = session.addWidget(
-              'DynamicSyntenyWidget',
-              'DynamicSyntenyWidget',
-              { id: 'DynamicSyntenyWidget' },
-            )
-            session.showWidget(widget)
-          }
-        },
-      })
+    // Add DotplotView custom radio option
+    pluginManager.addToExtensionPoint(
+      'DotplotView-ImportFormSyntenyOptions',
+      (
+        options: DotplotImportFormSyntenyOption[],
+        { model, assembly1, assembly2 },
+      ) => {
+        return [
+          ...options,
+          {
+            value: 'dynamic-synteny',
+            label: 'Load from Dynamic Synteny API',
+            ReactComponent: DotplotDynamicSyntenyImportForm,
+          },
+        ]
+      },
+    )
 
-      // Add more menu items with submenus
-      pluginManager.rootModel.appendToMenu('NCGR', {
-        label: 'Data Management',
-        subMenu: [
+    // Add LinearSyntenyView custom radio option
+    pluginManager.addToExtensionPoint(
+      'LinearSyntenyView-ImportFormSyntenyOptions',
+      (
+        options: LinearSyntenyImportFormSyntenyOption[],
+        { model, assembly1, assembly2, selectedRow },
+      ) => {
+        return [
+          ...options,
           {
-            label: 'Reset to Defaults',
-            onClick: (session: any) => {
-              localStorage.removeItem('myPluginConfig')
-              session.notify('Settings reset to defaults', 'success')
-            },
+            value: 'dynamic-synteny',
+            label: 'Load from Dynamic Synteny API',
+            ReactComponent: LinearSyntenyDynamicSyntenyImportForm,
           },
-          {
-            label: 'Export Settings',
-            onClick: (session: any) => {
-              const config = localStorage.getItem('myPluginConfig')
-              if (config) {
-                navigator.clipboard.writeText(config)
-                session.notify('Settings copied to clipboard', 'success')
-              }
-            },
-          },
-        ],
-      })
-    }
+        ]
+      },
+    )
   }
 }

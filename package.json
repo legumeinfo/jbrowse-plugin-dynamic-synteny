@@ -36,7 +36,7 @@
     "setup:file": "ts-node scripts/setup.ts",
     "setup:jbrowse": "npm-run-all setup:jbrowse:*",
     "setup:jbrowse:clean": "rimraf .jbrowse",
-    "setup:jbrowse:create": "jbrowse create .jbrowse",
+    "setup:jbrowse:create": "jbrowse create --branch custom_radio_synteny .jbrowse",
     "clean": "rimraf dist",
     "start": "npm-run-all --sequential clean --parallel start:*",
     "start:watch": "cross-env JB_NPM=false NODE_ENV=development rollup --config --watch --bundleConfigAsCjs",
@@ -59,7 +59,9 @@
     "name": "DynamicSynteny"
   },
   "peerDependencies": {
-    "@jbrowse/core": "^2.0.0"
+    "@jbrowse/core": "^2.0.0",
+    "@jbrowse/plugin-dotplot-view": "^2.0.0",
+    "@jbrowse/plugin-linear-comparative-view": "^2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.5",
@@ -68,6 +70,8 @@
     "@jbrowse/cli": "^2.6.1",
     "@jbrowse/core": "^2.6.1",
     "@jbrowse/development-tools": "^2.1.1",
+    "@jbrowse/plugin-dotplot-view": "^2.6.1",
+    "@jbrowse/plugin-linear-comparative-view": "^2.6.1",
     "@jbrowse/plugin-linear-genome-view": "^3.7.0",
     "@mui/material": "^5.10.5",
     "@mui/system": "^5.10.5",
