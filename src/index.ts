@@ -7,6 +7,7 @@ import {
   DotplotDynamicSyntenyImportForm,
   LinearSyntenyDynamicSyntenyImportForm,
 } from './DynamicSyntenyImportForm'
+import { configSchema } from './config/configSchema'
 
 // Type definitions for extension point options
 interface DotplotImportFormSyntenyOption {
@@ -22,8 +23,9 @@ interface LinearSyntenyImportFormSyntenyOption {
 }
 
 export default class DynamicSyntenyPlugin extends Plugin {
-  name = 'DynamicSyntenyPlugin'
+  name = 'DynamicSynteny'
   version = version
+  configurationSchema = configSchema
 
   install(pluginManager: PluginManager) {
     // Register adapter

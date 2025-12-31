@@ -1,4 +1,9 @@
 {
+  "configuration": {
+    "DynamicSynteny": {
+      "endpoint": "http://localhost/gcv/microservices/macro-synteny-paf"
+    }
+  },
   "plugins": [
     {
       "name": "DynamicSynteny",

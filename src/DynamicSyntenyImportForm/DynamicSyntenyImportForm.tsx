@@ -9,6 +9,8 @@ import {
   Collapse,
 } from '@mui/material'
 import { ErrorMessage } from '@jbrowse/core/ui'
+import { getEnv } from '@jbrowse/core/util'
+import { readConfObject } from '@jbrowse/core/configuration'
 
 interface DotplotProps {
   model: any // DotplotViewModel
@@ -26,7 +28,21 @@ interface LinearSyntenyProps {
 // Component for DotplotView
 export const DotplotDynamicSyntenyImportForm: React.FC<DotplotProps> = observer(
   ({ model, assembly1, assembly2 }) => {
-    const [endpoint, setEndpoint] = useState('http://localhost/gcv/microservices/macro-synteny-paf')
+    // Access plugin configuration from rootModel.jbrowse.configuration
+    let configuredEndpoint = ''
+    try {
+      const { pluginManager } = getEnv(model)
+      const rootModel = (pluginManager as any)?.rootModel
+      const jbrowseConfig = rootModel?.jbrowse?.configuration
+      const pluginConfig = jbrowseConfig?.DynamicSynteny
+      if (pluginConfig) {
+        configuredEndpoint = readConfObject(pluginConfig, 'endpoint')
+      }
+    } catch (e) {
+      // Fall back to empty string
+    }
+
+    const [endpoint, setEndpoint] = useState(configuredEndpoint)
     const [matched, setMatched] = useState(10)
     const [intermediate, setIntermediate] = useState(5)
     const [mask, setMask] = useState(20)
@@ -85,7 +101,6 @@ export const DotplotDynamicSyntenyImportForm: React.FC<DotplotProps> = observer(
           onChange={(e) => setEndpoint(e.target.value)}
           margin="normal"
           size="small"
-          helperText="Base URL for the macro-synteny API"
         />
 
         {/* Advanced Options */}
@@ -136,7 +151,21 @@ export const DotplotDynamicSyntenyImportForm: React.FC<DotplotProps> = observer(
 // Component for LinearSyntenyView
 export const LinearSyntenyDynamicSyntenyImportForm: React.FC<LinearSyntenyProps> = observer(
   ({ model, assembly1, assembly2, selectedRow }) => {
-    const [endpoint, setEndpoint] = useState('http://localhost/gcv/microservices/macro-synteny-paf')
+    // Access plugin configuration from rootModel.jbrowse.configuration
+    let configuredEndpoint = ''
+    try {
+      const { pluginManager } = getEnv(model)
+      const rootModel = (pluginManager as any)?.rootModel
+      const jbrowseConfig = rootModel?.jbrowse?.configuration
+      const pluginConfig = jbrowseConfig?.DynamicSynteny
+      if (pluginConfig) {
+        configuredEndpoint = readConfObject(pluginConfig, 'endpoint')
+      }
+    } catch (e) {
+      // Fall back to empty string
+    }
+
+    const [endpoint, setEndpoint] = useState(configuredEndpoint)
     const [matched, setMatched] = useState(10)
     const [intermediate, setIntermediate] = useState(5)
     const [mask, setMask] = useState(20)
@@ -195,7 +224,6 @@ export const LinearSyntenyDynamicSyntenyImportForm: React.FC<LinearSyntenyProps>
           onChange={(e) => setEndpoint(e.target.value)}
           margin="normal"
           size="small"
-          helperText="Base URL for the macro-synteny API"
         />
 
         {/* Advanced Options */}
