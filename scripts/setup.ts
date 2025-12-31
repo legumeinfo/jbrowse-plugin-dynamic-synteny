@@ -43,7 +43,6 @@ async function main() {
   updatePackageJSON(className, packageJSON)
   updateSrcIndex(className)
   updateJBrowseConfig(n, className)
-  updateExampleFixture(n, className)
   updateReadme(rawPackageName, packageJSON.repository)
 }
 
