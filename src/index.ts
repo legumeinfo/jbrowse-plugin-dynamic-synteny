@@ -8,8 +8,18 @@ import {
   LinearSyntenyDynamicSyntenyImportForm,
 } from './DynamicSyntenyImportForm'
 
-import type { DotplotImportFormSyntenyOption } from '@jbrowse/plugin-dotplot-view'
-import type { LinearSyntenyImportFormSyntenyOption } from '@jbrowse/plugin-linear-comparative-view'
+// Type definitions for extension point options
+interface DotplotImportFormSyntenyOption {
+  value: string
+  label: string
+  ReactComponent: React.FC<any>
+}
+
+interface LinearSyntenyImportFormSyntenyOption {
+  value: string
+  label: string
+  ReactComponent: React.FC<any>
+}
 
 export default class DynamicSyntenyPlugin extends Plugin {
   name = 'DynamicSyntenyPlugin'

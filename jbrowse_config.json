@@ -7,8 +7,7 @@
   ],
   "assemblies": [
     {
-      "name": "W",
-      "aliases": ["Wm82"],
+      "name": "glyma.Wm82.gnm4",
       "sequence": {
         "type": "ReferenceSequenceTrack",
         "trackId": "Wm82.gnm4-ReferenceSequenceTrack",
@@ -23,35 +22,6 @@
             "locationType": "UriLocation"
           }
         }
-      }
-    }
-  ],
-  "tracks": [
-    {
-      "type": "SyntenyTrack",
-      "trackId": "dynamic-synteny-track",
-      "name": "Dynamic Synteny",
-      "assemblyNames": ["W", "W"],
-      "adapter": {
-        "type": "DynamicSyntenyAdapter",
-        "url": "http://localhost/gcv/microservices/macro-synteny-paf?genome1=glyma.Wm82.gnm4&genome2=glyma.Wm82.gnm4&matched=10&intermediate=5&mask=20&format=json",
-        "appendRegionParams": false,
-        "assemblyNames": ["W", "W"],
-        "clientSideFilter": true,
-        "cacheTimeout": 300000
-      }
-    },
-    {
-      "type": "SyntenyTrack",
-      "trackId": "paf-synteny-track",
-      "name": "PAF Synteny",
-      "assemblyNames": ["W", "W"],
-      "adapter": {
-        "type": "PAFAdapter",
-        "pafLocation": {
-          "uri": "http://localhost/gcv/microservices/macro-synteny-paf?genome1=glyma.Wm82.gnm4&genome2=glyma.Wm82.gnm4&matched=10&intermediate=5&mask=20&format=paf"
-        },
-        "assemblyNames": ["W", "W"]
       }
     }
   ]
