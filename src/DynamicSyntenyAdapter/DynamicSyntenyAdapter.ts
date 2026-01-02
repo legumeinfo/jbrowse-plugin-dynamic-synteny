@@ -43,6 +43,8 @@ function getNestedValue(obj: any, path: string): any {
 export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
   private cache: Map<string, CacheEntry> = new Map()
   private refreshTimer?: ReturnType<typeof setInterval>
+  // Track in-flight requests to prevent duplicate concurrent fetches
+  private inFlightRequests: Map<string, Promise<Feature[]>> = new Map()
 
   constructor(config: any, getSubAdapter?: any, pluginManager?: any) {
     super(config, getSubAdapter, pluginManager)
@@ -132,16 +134,33 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
           return
         }
 
-        // Fetch from API
-        const allFeatures = await this.fetchFeatures(region, options)
+        // Check if request is already in-flight for this cache key
+        let allFeatures: Feature[]
+        const inFlight = this.inFlightRequests.get(cacheKey)
 
-        // Cache if enabled (cache full dataset for client-side filtering)
-        const cacheTimeout = readConfObject(this.config, 'cacheTimeout') as number
-        if (cacheTimeout > 0) {
-          this.cache.set(cacheKey, {
-            features: allFeatures,
-            timestamp: Date.now(),
-          })
+        if (inFlight) {
+          // Wait for the existing request to complete instead of making a duplicate
+          allFeatures = await inFlight
+        } else {
+          // Start new request and track it
+          const fetchPromise = this.fetchFeatures(region, options)
+          this.inFlightRequests.set(cacheKey, fetchPromise)
+
+          try {
+            allFeatures = await fetchPromise
+
+            // Cache if enabled (cache full dataset for client-side filtering)
+            const cacheTimeout = readConfObject(this.config, 'cacheTimeout') as number
+            if (cacheTimeout > 0) {
+              this.cache.set(cacheKey, {
+                features: allFeatures,
+                timestamp: Date.now(),
+              })
+            }
+          } finally {
+            // Always clean up in-flight tracking, even if request fails
+            this.inFlightRequests.delete(cacheKey)
+          }
         }
 
         // Apply client-side filtering if enabled
