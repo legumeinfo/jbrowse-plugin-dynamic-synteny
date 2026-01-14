@@ -7,6 +7,11 @@ import {
   Typography,
   Paper,
   Collapse,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  FormControl,
+  FormLabel,
 } from '@mui/material'
 import { ErrorMessage } from '@jbrowse/core/ui'
 import { getEnv } from '@jbrowse/core/util'
@@ -46,6 +51,7 @@ export const DotplotDynamicSyntenyImportForm: React.FC<DotplotProps> = observer(
     const [matched, setMatched] = useState(10)
     const [intermediate, setIntermediate] = useState(5)
     const [mask, setMask] = useState(20)
+    const [identity, setIdentity] = useState<'levenshtein' | 'jaccard'>('levenshtein')
     const [showAdvanced, setShowAdvanced] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -54,7 +60,7 @@ export const DotplotDynamicSyntenyImportForm: React.FC<DotplotProps> = observer(
         // Only set track if we have required inputs
         if (endpoint && assembly1 && assembly2) {
           // Build the dynamic synteny track URL using assembly names
-          const url = `${endpoint}?genome1=${assembly1}&genome2=${assembly2}&matched=${matched}&intermediate=${intermediate}&mask=${mask}&format=json`
+          const url = `${endpoint}?genome1=${assembly1}&genome2=${assembly2}&matched=${matched}&intermediate=${intermediate}&mask=${mask}&identity=${identity}&format=json`
 
           // Create the track configuration
           const trackId = `dynamic-synteny-${Date.now()}-sessionTrack`
@@ -84,7 +90,7 @@ export const DotplotDynamicSyntenyImportForm: React.FC<DotplotProps> = observer(
         console.error(e)
         setError(e instanceof Error ? e.message : 'Failed to load track')
       }
-    }, [model, assembly1, assembly2, endpoint, matched, intermediate, mask])
+    }, [model, assembly1, assembly2, endpoint, matched, intermediate, mask, identity])
 
     return (
       <Paper style={{ padding: 12 }}>
@@ -141,6 +147,30 @@ export const DotplotDynamicSyntenyImportForm: React.FC<DotplotProps> = observer(
                 helperText="Mask threshold"
               />
             </Box>
+            <Tooltip
+              title="Levenshtein distance measures the edit distance, the minimum number of operations to transform one sequence to another. Jaccard similarity on the other hand measures set overlap irrespective of order."
+              arrow
+              placement="top"
+            >
+              <FormControl style={{ marginTop: 12 }}>
+                <FormLabel style={{ fontSize: '0.75rem', marginBottom: 4 }}>
+                  Identity Metric
+                </FormLabel>
+                <ToggleButtonGroup
+                  value={identity}
+                  exclusive
+                  onChange={(_, newValue) => {
+                    if (newValue !== null) {
+                      setIdentity(newValue)
+                    }
+                  }}
+                  size="small"
+                >
+                  <ToggleButton value="levenshtein">Levenshtein</ToggleButton>
+                  <ToggleButton value="jaccard">Jaccard</ToggleButton>
+                </ToggleButtonGroup>
+              </FormControl>
+            </Tooltip>
           </Collapse>
         </Box>
       </Paper>
@@ -169,6 +199,7 @@ export const LinearSyntenyDynamicSyntenyImportForm: React.FC<LinearSyntenyProps>
     const [matched, setMatched] = useState(10)
     const [intermediate, setIntermediate] = useState(5)
     const [mask, setMask] = useState(20)
+    const [identity, setIdentity] = useState<'levenshtein' | 'jaccard'>('levenshtein')
     const [showAdvanced, setShowAdvanced] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -177,7 +208,7 @@ export const LinearSyntenyDynamicSyntenyImportForm: React.FC<LinearSyntenyProps>
         // Only set track if we have required inputs
         if (endpoint && assembly1 && assembly2) {
           // Build the dynamic synteny track URL using assembly names
-          const url = `${endpoint}?genome1=${assembly1}&genome2=${assembly2}&matched=${matched}&intermediate=${intermediate}&mask=${mask}&format=json`
+          const url = `${endpoint}?genome1=${assembly1}&genome2=${assembly2}&matched=${matched}&intermediate=${intermediate}&mask=${mask}&identity=${identity}&format=json`
 
           // Create the track configuration
           const trackId = `dynamic-synteny-${Date.now()}-sessionTrack`
@@ -207,7 +238,7 @@ export const LinearSyntenyDynamicSyntenyImportForm: React.FC<LinearSyntenyProps>
         console.error(e)
         setError(e instanceof Error ? e.message : 'Failed to load track')
       }
-    }, [model, assembly1, assembly2, selectedRow, endpoint, matched, intermediate, mask])
+    }, [model, assembly1, assembly2, selectedRow, endpoint, matched, intermediate, mask, identity])
 
     return (
       <Paper style={{ padding: 12 }}>
@@ -264,6 +295,30 @@ export const LinearSyntenyDynamicSyntenyImportForm: React.FC<LinearSyntenyProps>
                 helperText="Mask threshold"
               />
             </Box>
+            <Tooltip
+              title="Levenshtein distance measures the edit distance, the minimum number of operations to transform one sequence to another. Jaccard similarity on the other hand measures set overlap irrespective of order."
+              arrow
+              placement="top"
+            >
+              <FormControl style={{ marginTop: 12 }}>
+                <FormLabel style={{ fontSize: '0.75rem', marginBottom: 4 }}>
+                  Identity Metric
+                </FormLabel>
+                <ToggleButtonGroup
+                  value={identity}
+                  exclusive
+                  onChange={(_, newValue) => {
+                    if (newValue !== null) {
+                      setIdentity(newValue)
+                    }
+                  }}
+                  size="small"
+                >
+                  <ToggleButton value="levenshtein">Levenshtein</ToggleButton>
+                  <ToggleButton value="jaccard">Jaccard</ToggleButton>
+                </ToggleButtonGroup>
+              </FormControl>
+            </Tooltip>
           </Collapse>
         </Box>
       </Paper>
