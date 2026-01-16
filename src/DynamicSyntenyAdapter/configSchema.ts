@@ -92,6 +92,11 @@ export const configSchema = ConfigurationSchema(
       description: 'JSON field containing alignment block length',
       defaultValue: 'alignmentBlockLength',
     },
+    identityField: {
+      type: 'string',
+      description: 'JSON field containing pre-calculated identity score (0.0-1.0)',
+      defaultValue: 'identity',
+    },
     mappingQualityField: {
       type: 'string',
       description: 'JSON field containing mapping quality score',

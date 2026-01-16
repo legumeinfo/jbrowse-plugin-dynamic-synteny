@@ -245,6 +245,7 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
     const strandField = readConfObject(this.config, 'strandField') as string
     const numResidueMatchesField = readConfObject(this.config, 'numResidueMatchesField') as string
     const alignmentBlockLengthField = readConfObject(this.config, 'alignmentBlockLengthField') as string
+    const identityField = readConfObject(this.config, 'identityField') as string
     const mappingQualityField = readConfObject(this.config, 'mappingQualityField') as string
 
     // Extract alignments array from response
@@ -270,6 +271,7 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
             strandField,
             numResidueMatchesField,
             alignmentBlockLengthField,
+            identityField,
             mappingQualityField,
           })
         } catch (error) {
@@ -308,6 +310,7 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
       strandField,
       numResidueMatchesField,
       alignmentBlockLengthField,
+      identityField,
       mappingQualityField,
     } = fieldMappings
 
@@ -352,6 +355,7 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
     // Extract alignment metadata
     const numResidueMatches = getNestedValue(alignment, numResidueMatchesField)
     const alignmentBlockLength = getNestedValue(alignment, alignmentBlockLengthField)
+    const identity = Number(getNestedValue(alignment, identityField)) || 0
     const mappingQuality = getNestedValue(alignment, mappingQualityField)
 
     // Generate unique ID
@@ -406,14 +410,12 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
       type: 'match',
       syntenyId: index,
       name: uniqueId,
-      // Include all PAF metadata
       queryLength,
       targetLength,
       numMatches: numResidueMatches,
       blockLen: alignmentBlockLength,
       mappingQuality,
-      // Calculate identity score (matches / block length)
-      identity: alignmentBlockLength > 0 ? numResidueMatches / alignmentBlockLength : 0,
+      identity,
     })
   }
 
