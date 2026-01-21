@@ -230,10 +230,31 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
 
   /**
    * Parse API response and convert to JBrowse features with mate relationships
+   * Supports both simple anchors (block alignments) and regular anchors (pre-formatted with mate)
    */
   private parseAlignments(data: any, region: Region): Feature[] {
     // Read configuration for field names
     const alignmentsField = readConfObject(this.config, 'alignmentsField') as string
+
+    // Extract alignments array from response
+    const alignmentsArray: any[] = getNestedValue(data, alignmentsField) || []
+
+    if (!Array.isArray(alignmentsArray)) {
+      console.warn(`DynamicSyntenyAdapter: "${alignmentsField}" is not an array in API response`)
+      return []
+    }
+
+    if (alignmentsArray.length === 0) {
+      return []
+    }
+
+    // Check if alignments are in regular anchor format (have mate property)
+    const firstAlignment = alignmentsArray[0]
+    if (firstAlignment && 'mate' in firstAlignment) {
+      return this.parseRegularAnchors(alignmentsArray, region)
+    }
+
+    // Fall back to simple anchors parsing
     const queryNameField = readConfObject(this.config, 'queryNameField') as string
     const queryStartField = readConfObject(this.config, 'queryStartField') as string
     const queryEndField = readConfObject(this.config, 'queryEndField') as string
@@ -247,14 +268,6 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
     const alignmentBlockLengthField = readConfObject(this.config, 'alignmentBlockLengthField') as string
     const identityField = readConfObject(this.config, 'identityField') as string
     const mappingQualityField = readConfObject(this.config, 'mappingQualityField') as string
-
-    // Extract alignments array from response
-    const alignmentsArray: AlignmentData[] = getNestedValue(data, alignmentsField) || []
-
-    if (!Array.isArray(alignmentsArray)) {
-      console.warn(`DynamicSyntenyAdapter: "${alignmentsField}" is not an array in API response`)
-      return []
-    }
 
     return alignmentsArray
       .map((alignment: any, index: number) => {
@@ -280,6 +293,72 @@ export default class DynamicSyntenyAdapter extends BaseFeatureDataAdapter {
         }
       })
       .filter((f): f is Feature => f !== null)
+  }
+
+  /**
+   * Parse regular anchors - alignments already in JBrowse feature format with mate property
+   * Example format:
+   * {
+   *   "uniqueId": "...",
+   *   "refName": "chr1",
+   *   "start": 1000,
+   *   "end": 2000,
+   *   "assemblyName": "assembly1",
+   *   "strand": "+",
+   *   "mate": { "refName": "chr2", "start": 3000, "end": 4000, "assemblyName": "assembly2" },
+   *   "identity": 0.95
+   * }
+   */
+  private parseRegularAnchors(alignments: any[], region: Region): Feature[] {
+    return alignments
+      .map((alignment: any, index: number) => {
+        try {
+          return this.parseRegularAnchor(alignment, index)
+        } catch (error) {
+          console.warn(`DynamicSyntenyAdapter: Failed to parse regular anchor at index ${index}:`, error)
+          return null
+        }
+      })
+      .filter((f): f is Feature => f !== null)
+  }
+
+  /**
+   * Parse individual regular anchor into JBrowse SimpleFeature
+   * The API returns data already in the correct format, so minimal transformation needed
+   */
+  private parseRegularAnchor(alignment: any, index: number): Feature | null {
+    const { uniqueId, refName, start, end, assemblyName, strand, mate, identity } = alignment
+
+    // Validate required fields
+    if (!refName || start === undefined || end === undefined) {
+      console.warn('DynamicSyntenyAdapter: Invalid coordinates in regular anchor:', alignment)
+      return null
+    }
+
+    if (!mate || !mate.refName || mate.start === undefined || mate.end === undefined) {
+      console.warn('DynamicSyntenyAdapter: Invalid mate coordinates in regular anchor:', alignment)
+      return null
+    }
+
+    // Normalize strand value
+    const normalizedStrand = strand === '-' || strand === -1 ? -1 : 1
+
+    return new SimpleFeature({
+      uniqueId: uniqueId || `anchor-${index}-${refName}:${start}-${end}`,
+      refName,
+      start,
+      end,
+      assemblyName,
+      strand: normalizedStrand,
+      syntenyId: index,
+      identity: identity ?? 0,
+      mate: {
+        refName: mate.refName,
+        start: mate.start,
+        end: mate.end,
+        assemblyName: mate.assemblyName,
+      },
+    })
   }
 
   /**

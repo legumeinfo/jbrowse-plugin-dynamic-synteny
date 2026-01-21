@@ -42,6 +42,26 @@ export interface GenericApiResponse {
 }
 
 /**
+ * Regular anchor format - pre-formatted JBrowse feature with mate
+ * Returned by API when anchors=regular is requested
+ */
+export interface RegularAnchorData {
+  uniqueId: string
+  refName: string
+  start: number
+  end: number
+  assemblyName: string
+  strand: '+' | '-'
+  mate: {
+    refName: string
+    start: number
+    end: number
+    assemblyName: string
+  }
+  identity?: number
+}
+
+/**
  * Mate information for synteny features
  */
 export interface MateInfo {
