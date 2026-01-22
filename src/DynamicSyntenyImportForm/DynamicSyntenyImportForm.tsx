@@ -174,7 +174,7 @@ export const DotplotDynamicSyntenyImportForm: React.FC<DotplotProps> = observer(
                 </FormControl>
               </Tooltip>
               <Tooltip
-                title="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                title="Simple anchors are more easily computed and display block-level correspondences of the macro synteny data, whereas regular anchors display all gene correspondences computed by the DAG."
                 arrow
                 placement="top"
               >
@@ -349,7 +349,7 @@ export const LinearSyntenyDynamicSyntenyImportForm: React.FC<LinearSyntenyProps>
                 </FormControl>
               </Tooltip>
               <Tooltip
-                title="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                title="Simple anchors are more easily computed and display block-level correspondences of the macro synteny data, whereas regular anchors display all gene correspondences computed by the DAG."
                 arrow
                 placement="top"
               >
